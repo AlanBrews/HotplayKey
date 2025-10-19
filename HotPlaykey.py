@@ -1,7 +1,3 @@
-# Hi professional hacker! It seems you've decompiled the executable into python file. Please note that this is fine for me
-# unless you re-publish (re-distribute) and/or claim it's yours.  I don't know anything much about copyrights so please keep my promise!
-# Have fun tinkering around i guess -Alan
-
 import just_playback
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
@@ -169,3 +165,4 @@ class AudioPlayer:
 if __name__ == "__main__":
     app = AudioPlayer()
     app.run()
+
