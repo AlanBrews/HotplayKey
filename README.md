@@ -1,10 +1,6 @@
 # HotPlaykey
-A singular executable made with Python which plays selected audio file by pressing a hotkey. It runs on background, just don't close it. A default hotkey is set to "menu"
+An ordinary audio player which only plays music by pressing a hotkey: "menu" (you can change it)
+A player relies on `just_playback` library, which **doesn't support most of the audio file types!**
 
-A prototype version was made by only me with simple code with only a console and no tkinter usage. But a lotta stuff was improvised and added by AI which was changed a bit to what my random users might see.
-
-- first of all: yes you can change a hotkey to your likings
-- second of all: not all audio files are supported for a program due to `just_playback` limitations
-- thats all lmao
-
-(if you read this this repository isnt finished)
+The program's prototype was made by only me with simple code with only a console and no tkinter usage. 
+But a lotta stuff was improvised and added which was changed to what my random users might see.
