@@ -17,10 +17,11 @@ class AudioPlayer:
         self.hotkey = 'menu'
         self.file_path = ""
         self.volume = 0.75
+        self.loop_enabled = False
         
         self.root = tk.Tk()
-        self.root.title("HotPlaykey - Audio Player")
-        self.root.geometry("270x300")
+        self.root.title("HotPlaykey")
+        self.root.geometry("270x370")
         self.root.resizable(False, False)
         
         self.style = ttk.Style()
@@ -54,8 +55,16 @@ class AudioPlayer:
         self.volume_scale.set(self.volume)
         self.volume_scale.grid(row=0, column=0, sticky=(tk.W, tk.E))
         
+        # Add loop checkbox
+        loop_frame = ttk.LabelFrame(main_frame, text="Playback Settings", padding="5")
+        loop_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 10))
+        
+        self.loop_var = tk.BooleanVar(value=False)
+        loop_check = ttk.Checkbutton(loop_frame, text="Loop Music", variable=self.loop_var, command=self.toggle_loop)
+        loop_check.grid(row=0, column=0, sticky=tk.W)
+        
         hotkey_frame = ttk.LabelFrame(main_frame, text="Hotkey Settings", padding="5")
-        hotkey_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 10))
+        hotkey_frame.grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 10))
         
         hotkey_label = ttk.Label(hotkey_frame, text="Current hotkey: ")
         hotkey_label.grid(row=0, column=0, sticky=tk.W)
@@ -69,14 +78,37 @@ class AudioPlayer:
         
         self.status_var = tk.StringVar(value="Ready. Select an audio file to begin.")
         status_bar = ttk.Label(main_frame, textvariable=self.status_var, relief=tk.SUNKEN)
-        status_bar.grid(row=5, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(10, 0))
+        status_bar.grid(row=6, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(10, 0))
         
         main_frame.columnconfigure(0, weight=1)
         file_frame.columnconfigure(0, weight=1)
         volume_frame.columnconfigure(0, weight=1)
+        loop_frame.columnconfigure(0, weight=1)
         hotkey_frame.columnconfigure(0, weight=0)
         hotkey_frame.columnconfigure(1, weight=1)
-        
+    
+    def on_playback_end(self):
+        if self.loop_enabled and self.file_path:
+            # Restart playback from beginning
+            self.player.seek(0)
+            self.player.play()
+            self.is_playing = True
+            self.status_var.set("Looping...")
+        else:
+            self.is_playing = False
+            self.status_var.set("Playback ended")
+    
+    def toggle_loop(self):
+        self.loop_enabled = self.loop_var.get()
+        if self.loop_enabled:
+            self.status_var.set("Loop mode: ON")
+            # Set the end callback for looping
+            self.player.end_callback = self.on_playback_end
+        else:
+            self.status_var.set("Loop mode: OFF")
+            # Remove the callback
+            self.player.end_callback = None
+    
     def setup_hotkey(self):
         try:
             keyboard.add_hotkey(self.hotkey, self.toggle_playback)
@@ -104,6 +136,11 @@ class AudioPlayer:
                 self.file_path = file_path
                 self.file_label.config(text=truncate_text(os.path.basename(file_path)))
                 self.status_var.set(f"Loaded: {truncate_text(os.path.basename(file_path))}")
+                
+                # Re-apply loop callback if enabled
+                if self.loop_enabled:
+                    self.player.end_callback = self.on_playback_end
+                
             except Exception as e:
                 messagebox.showerror("Error", f"Could not load audio file: {str(e)}")
                 self.status_var.set("Could not load audio file!")
@@ -137,7 +174,6 @@ class AudioPlayer:
         except:
             pass
     
-    
     def format_time(self, seconds):
         minutes = int(seconds // 60)
         seconds = int(seconds % 60)
@@ -165,4 +201,3 @@ class AudioPlayer:
 if __name__ == "__main__":
     app = AudioPlayer()
     app.run()
-
